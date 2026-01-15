@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <title>Tic-Tac-Toe Multiplayer</title>
+</head>
+<body>
+    <div id="setup">
+        <input type="text" id="nameInput" placeholder="Seu nome">
+        <button onclick="joinGame()">Entrar no Jogo</button>
+    </div>
+    
+    <div id="game" style="display:none">
+        <h2 id="status">Aguardando...</h2>
+        <div id="scoreboardText">X: 0 | O: 0</div>
+        <div class="board" id="board">
+            <div class="cell" onclick="move(0)"></div>
+            <div class="cell" onclick="move(1)"></div>
+            <div class="cell" onclick="move(2)"></div>
+            <div class="cell" onclick="move(3)"></div>
+            <div class="cell" onclick="move(4)"></div>
+            <div class="cell" onclick="move(5)"></div>
+            <div class="cell" onclick="move(6)"></div>
+            <div class="cell" onclick="move(7)"></div>
+            <div class="cell" onclick="move(8)"></div>
+        </div>
+    </div>
+    <div id="result-screen" style="display:none">
+    <h2 id="result-message"></h2>
+    <div id="restart-options">
+              <p>Deseja manter os mesmos jogadores?</p>
+              <button onclick="confirmRestart(true)">Sim, continuar</button>
+              <button onclick="confirmRestart(false)">Não, mudar nomes</button>
+         </div>
+    </div>
+    <script src="/static/script.js"></script>
+</body>
+</html>

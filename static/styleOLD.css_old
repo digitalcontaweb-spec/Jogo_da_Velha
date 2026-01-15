@@ -1,0 +1,106 @@
+body {
+    background-color: #f4f4f4;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+}
+
+#game {
+    text-align: center;
+}
+
+/* O Tabuleiro */
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 100px);
+    gap: 10px;
+    margin-top: 20px;
+    background-color: #034530; /* O seu verde */
+    padding: 10px;
+    border-radius: 10px;
+}
+
+/* As Células */
+.cell {
+    width: 100px;
+    height: 100px;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.cell:hover {
+    background-color: #e0e0e0;
+}
+
+#status {
+    color: #034530;
+    margin-bottom: 10px;
+}
+
+#scoreboardText {
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+#result-screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px;
+    border: 3px solid #034530;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    z-index: 10;
+    text-align: center;
+}
+
+#restart-options button {
+    margin: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: #034530;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+#restart-options button:last-child {
+    background-color: #d9534f;
+}
+
+/* ... manter o anterior e adicionar/ajustar ... */
+#restart-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+
+#restart-options button {
+    width: 200px;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-keep { background-color: #034530; color: white; }
+.btn-change { background-color: #f0ad4e; color: white; }
+.btn-exit { background-color: #d9534f; color: white; }
+
+#restart-options button:hover { opacity: 0.8; }
