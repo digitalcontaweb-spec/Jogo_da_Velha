@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <title>X-ARENA | Battle</title>
+</head>
+<body>
+    <div id="setup" class="panel">
+        <h1 class="logo">ARENA<span>X</span></h1>
+        <div class="form">
+            <input type="text" id="nameInput" placeholder="NICKNAME">
+            <input type="text" id="roomInput" placeholder="SALA ID">
+            <button onclick="joinGame()">ENTRAR NO SERVIDOR</button>
+        </div>
+    </div>
+    
+    <div id="game" style="display:none">
+        <div class="header">
+            <div class="badge" id="myBadge">---</div>
+            <div class="timer-box">TEMPO: <span id="timeLeft">15</span>s</div>
+        </div>
+
+        <div class="scoreboard">
+            <div class="player">
+                <span id="nameX">...</span>
+                <div id="valX" class="pts">0</div>
+            </div>
+            <div class="vs">VS</div>
+            <div class="player">
+                <span id="nameO">...</span>
+                <div id="valO" class="pts">0</div>
+            </div>
+        </div>
+
+        <p id="status" class="status-msg"></p>
+        
+        <div class="board-area">
+            <div class="board">
+                <div class="cell" onclick="move(0)"></div><div class="cell" onclick="move(1)"></div><div class="cell" onclick="move(2)"></div>
+                <div class="cell" onclick="move(3)"></div><div class="cell" onclick="move(4)"></div><div class="cell" onclick="move(5)"></div>
+                <div class="cell" onclick="move(6)"></div><div class="cell" onclick="move(7)"></div><div class="cell" onclick="move(8)"></div>
+            </div>
+
+            <div id="result-overlay" style="display:none">
+                <h2 id="result-message"></h2>
+                <div class="nav">
+                    <button class="btn-rev" onclick="handleChoice('keep')">REVANCHE</button>
+                    <button class="btn-out" onclick="handleChoice('exit')">SAIR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/script.js"></script>
+</body>
+</html>
