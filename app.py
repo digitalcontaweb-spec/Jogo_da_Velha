@@ -1,11 +1,11 @@
 import eventlet
-eventlet.monkey_patch() # Isso deve ser a primeira linha!
+eventlet.monkey_patch() # Vital para o Render não travar as conexões
 
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit, join_room
 
 app = Flask(__name__)
-# O cors_allowed_origins="*" permite que o site receba jogadores da web
+# Configuração para permitir conexões de qualquer origem (CORS)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
 rooms = {}
@@ -28,19 +28,30 @@ def handle_join(data):
     
     if room not in rooms:
         rooms[room] = {
-            'board': [None]*9, 'players': {}, 'turn': 'X', 
-            'score': {'X': 0, 'O': 0}, 'winner': None,
-            'history': {'X': [], 'O': []} # Para apagar a última jogada
+            'board': [None]*9, 
+            'players': {}, 
+            'turn': 'X', 
+            'starter': 'X', # X começa o primeiro round de todos
+            'score': {'X': 0, 'O': 0}, 
+            'winner': None,
+            'history': {'X': [], 'O': []}
         }
     
     game = rooms[room]
-    role = 'X' if 'X' not in game['players'] else 'O' if 'O' not in game['players'] else 'Espectador'
+    # Atribuição de papel corrigida para evitar o erro "Todo mundo é Mário"
+    if 'X' not in game['players']:
+        role = 'X'
+    elif 'O' not in game['players']:
+        role = 'O'
+    else:
+        role = 'Espectador'
     
     if role != 'Espectador':
         game['players'][role] = name
     
-    # IMPORTANTE: assign_role sem room=room envia APENAS para quem conectou
+    # Envia apenas para quem entrou para fixar a identidade
     emit('assign_role', {'role': role, 'name': name})
+    # Atualiza todos os jogadores na sala
     emit('update_all', game, room=room)
 
 @socketio.on('make_move')
@@ -50,7 +61,7 @@ def handle_move(data):
     
     if game and game['board'][idx] is None and game['turn'] == role and not game['winner']:
         game['board'][idx] = role
-        game['history'][role].append(idx) # Salva no histórico
+        game['history'][role].append(idx) # Guarda para possível punição
         
         res = check_winner(game['board'])
         if res:
@@ -66,12 +77,12 @@ def handle_timeout(data):
     game = rooms.get(room)
     
     if game and game['turn'] == role and not game['winner']:
-        # PUNIÇÃO: Apaga a última jogada feita por este jogador
+        # PUNIÇÃO: Apaga a última marcação do jogador que estourou o tempo
         if game['history'][role]:
             last_idx = game['history'][role].pop()
             game['board'][last_idx] = None
         
-        # Passa a vez
+        # Passa a vez para o oponente
         game['turn'] = 'O' if role == 'X' else 'X'
         emit('update_all', game, room=room)
 
@@ -79,15 +90,25 @@ def handle_timeout(data):
 def handle_reset(data):
     room = data['room']
     if room in rooms:
-        rooms[room].update({'board': [None]*9, 'winner': None, 'turn': 'X', 'history': {'X': [], 'O': []}})
-        emit('update_all', rooms[room], room=room)
+        game = rooms[room]
+        # ALTERNÂNCIA: Inverte quem começa a próxima partida
+        game['starter'] = 'O' if game['starter'] == 'X' else 'X'
+        
+        game.update({
+            'board': [None]*9, 
+            'winner': None, 
+            'turn': game['starter'], # Define o turno inicial com o novo starter
+            'history': {'X': [], 'O': []}
+        })
+        emit('update_all', game, room=room)
 
 @socketio.on('full_reset')
 def handle_full_reset(data):
-    emit('force_setup', room=data['room'])
-    if data['room'] in rooms: del rooms[data['room']]
+    room = data['room']
+    emit('force_setup', room=room)
+    if room in rooms:
+        del rooms[room]
 
 if __name__ == '__main__':
-
-    socketio.run(app, debug=True, port=5000)
-
+    # Uso de threading apenas local; no Render o Gunicorn ignora isso
+    socketio.run(app, debug=True)
