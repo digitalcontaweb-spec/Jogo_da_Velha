@@ -1,7 +1,11 @@
+import eventlet
+eventlet.monkey_patch() # Isso deve ser a primeira linha!
+
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit, join_room
 
 app = Flask(__name__)
+# O cors_allowed_origins="*" permite que o site receba jogadores da web
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
 rooms = {}
@@ -86,3 +90,4 @@ def handle_full_reset(data):
 if __name__ == '__main__':
 
     socketio.run(app, debug=True, port=5000)
+
