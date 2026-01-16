@@ -1,45 +1,50 @@
 const socket = io();
-let myRole = null;
-let currentRoom = null;
-let myTurn = false;
-let countdown = null;
-let timeLeft = 15;
+let myRole = null, currentRoom = null, myTurn = false, countdown = null, timeLeft = 15;
+
+// Controle da Abertura
+window.onload = () => {
+    const audio = document.getElementById('introSound');
+    audio.play().catch(() => console.log("Som aguardando interação"));
+    setTimeout(() => { skipIntro(); }, 5000); // Pula automático após 5s
+};
+
+function skipIntro() {
+    document.getElementById('intro').style.display = 'none';
+    document.getElementById('setup').style.display = 'block';
+}
+
+function showRules() {
+    const n = document.getElementById('nameInput').value;
+    const r = document.getElementById('roomInput').value;
+    if(n && r) document.getElementById('rules-modal').style.display = 'flex';
+}
 
 function joinGame() {
-    const name = document.getElementById('nameInput').value.trim();
-    const room = document.getElementById('roomInput').value.trim();
-    
-    if (name && room) {
-        currentRoom = room;
-        socket.emit('join', { name: name, room: room });
-        document.getElementById('setup').style.display = 'none';
-        document.getElementById('game').style.display = 'block';
-    }
+    const name = document.getElementById('nameInput').value;
+    currentRoom = document.getElementById('roomInput').value;
+    socket.emit('join', { name: name, room: currentRoom });
+    document.getElementById('rules-modal').style.display = 'none';
+    document.getElementById('setup').style.display = 'none';
+    document.getElementById('game').style.display = 'block';
 }
 
 function startTimer() {
     clearInterval(countdown);
     timeLeft = 15;
     document.getElementById('timeLeft').innerText = timeLeft;
-    
     countdown = setInterval(() => {
         timeLeft--;
         document.getElementById('timeLeft').innerText = timeLeft;
         if (timeLeft <= 0) {
             clearInterval(countdown);
-            if (myTurn) {
-                socket.emit('timeout_punishment', { room: currentRoom, role: myRole });
-            }
+            if (myTurn) socket.emit('timeout_punishment', { room: currentRoom, role: myRole });
         }
     }, 1000);
 }
 
 socket.on('assign_role', (data) => {
     myRole = data.role;
-    // Atualiza o crachá para confirmar se você é X, O ou Espectador
-    const badge = document.getElementById('myBadge');
-    badge.innerText = `${data.name} [${myRole}]`;
-    badge.style.background = (myRole === 'Espectador') ? '#555' : '#00ff88';
+    document.getElementById('myBadge').innerText = `${data.name} [${myRole}]`;
 });
 
 socket.on('update_all', (data) => {
@@ -56,18 +61,18 @@ socket.on('update_all', (data) => {
 
     if (data.winner) {
         clearInterval(countdown);
-        document.getElementById('result-message').innerText = data.winner === 'Velha' ? "EMPATE!" : `${data.players[data.winner]} VENCEU!`;
         document.getElementById('result-overlay').style.display = 'flex';
-        myTurn = false;
+        document.getElementById('result-message').innerText = data.winner === 'Velha' ? "EMPATE!" : "VENCEU!";
     } else {
         document.getElementById('result-overlay').style.display = 'none';
         myTurn = (data.turn === myRole);
-        const nVez = data.players[data.turn] || 'OPONENTE';
-        document.getElementById('status').innerText = myTurn ? ">> SUA VEZ <<" : `AGUARDANDO: ${nVez}`;
+        document.getElementById('status').innerText = myTurn ? ">> SUA VEZ <<" : `AGUARDANDO: ${data.players[data.turn]}`;
         
-        // Só inicia o timer se houver dois jogadores na sala
-        if (data.players['X'] && data.players['O']) {
+        // MODIFICAÇÃO: Só inicia o timer se o jogo já tiver começado (1ª jogada feita)
+        if (data.started && data.players['X'] && data.players['O']) {
             startTimer();
+        } else {
+            document.getElementById('timeLeft').innerText = "15"; // Fica parado em 15s até a 1ª jogada
         }
     }
 });
@@ -76,9 +81,7 @@ function move(idx) {
     if (myTurn) socket.emit('make_move', { index: idx, role: myRole, room: currentRoom });
 }
 
-function handleChoice(action) {
-    if (action === 'keep') socket.emit('reset_game', { room: currentRoom });
-    else socket.emit('full_reset', { room: currentRoom });
+function handleChoice(a) {
+    if (a === 'keep') socket.emit('reset_game', { room: currentRoom });
+    else window.location.reload();
 }
-
-socket.on('force_setup', () => { window.location.reload(); });
