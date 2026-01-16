@@ -1,69 +1,15 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/static/style.css">
-    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
-    <title>X-ARENA | Challenge</title>
-</head>
-<body>
-    <div id="intro">
-        <div class="glitch" data-text="X-ARENA">X-ARENA</div>
-        <div class="symbol-pulse">X</div>
-        <button class="skip-btn" onclick="skipIntro()">PULAR APRESENTAÇÃO</button>
-        <audio id="introSound" loop src="https://www.soundjay.com/mechanical/sounds/tunnel-wind-01.mp3"></audio>
-    </div>
-
-    <div id="setup" class="panel" style="display:none">
-        <h1 class="neon-text">ARENA<span>X</span></h1>
-        <div class="login-box">
-            <input type="text" id="nameInput" placeholder="NICKNAME">
-            <input type="text" id="roomInput" placeholder="ID DA SALA">
-            <button class="btn-main" onclick="showRules()">DESAFIAR</button>
-        </div>
-    </div>
-
-    <div id="rules-modal" class="modal" style="display:none">
-        <div class="modal-box">
-            <h2>📜 REGRAS DE COMBATE</h2>
-            <p>1. O tempo de <strong>15s</strong> só começa após a 1ª jogada.</p>
-            <p>2. Se o tempo esgotar, sua última marcação <strong>desaparece</strong>.</p>
-            <p>3. A cada revanche, o jogador que inicia é <strong>alternado</strong>.</p>
-            <button class="btn-start" onclick="joinGame()">ENTRAR NA ARENA</button>
-        </div>
-    </div>
-
-    <div id="game" style="display:none">
-        <div class="arena-header">
-            <div id="myBadge" class="user-badge">---</div>
-            <div class="timer">TEMPO: <span id="timeLeft">15</span>s</div>
-        </div>
+<div id="game" style="display:none">
+    <div class="grid">
+        <div class="cell" onclick="move(0)"></div><div class="cell" onclick="move(1)"></div><div class="cell" onclick="move(2)"></div>
+        <div class="cell" onclick="move(3)"></div><div class="cell" onclick="move(4)"></div><div class="cell" onclick="move(5)"></div>
+        <div class="cell" onclick="move(6)"></div><div class="cell" onclick="move(7)"></div><div class="cell" onclick="move(8)"></div>
         
-        <div class="scoreboard">
-            <div class="side"><span id="nameX">...</span><div id="valX">0</div></div>
-            <div class="vs-label">VS</div>
-            <div class="side"><span id="nameO">...</span><div id="valO">0</div></div>
-        </div>
-
-        <p id="status" class="status-indicator"></p>
-
-        <div class="main-board">
-            <div class="grid">
-                <div class="cell" onclick="move(0)"></div><div class="cell" onclick="move(1)"></div><div class="cell" onclick="move(2)"></div>
-                <div class="cell" onclick="move(3)"></div><div class="cell" onclick="move(4)"></div><div class="cell" onclick="move(5)"></div>
-                <div class="cell" onclick="move(6)"></div><div class="cell" onclick="move(7)"></div><div class="cell" onclick="move(8)"></div>
-            </div>
-            
-            <div id="result-overlay" style="display:none">
-                <h1 id="result-message"></h1>
-                <div class="actions">
-                    <button class="btn-rev" onclick="handleChoice('keep')">NOVO ROUND</button>
-                    <button class="btn-exit" onclick="handleChoice('exit')">ABANDONAR</button>
-                </div>
+        <div id="result-overlay" style="display:none">
+            <h2 id="result-message"></h2>
+            <div class="buttons">
+                <button class="btn-rev" onclick="handleChoice('keep')">Revanche</button>
+                <button class="btn-out" onclick="handleChoice('exit')">Sair do jogo</button>
             </div>
         </div>
     </div>
-    <script src="/static/script.js"></script>
-</body>
-</html>
+</div>
