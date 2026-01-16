@@ -1,30 +1,37 @@
-* { box-sizing: border-box; }
 body {
-    background: #0d1117; color: #c9d1d9; font-family: 'Segoe UI', sans-serif;
+    background: #0d1117; color: #fff; font-family: sans-serif;
     margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;
 }
 
 #intro, #setup, #rules-modal { position: fixed; inset: 0; background: #0d1117; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
 
+#game { display: flex; flex-direction: column; align-items: center; width: 100%; }
+
+.grid-container { position: relative; display: flex; justify-content: center; width: 100%; }
+
 .grid { 
     display: grid; grid-template-columns: repeat(3, 100px); gap: 10px; 
-    padding: 10px; background: #30363d; border-radius: 8px; 
-    position: relative; margin: 0 auto; /* CENTRALIZAÇÃO */
+    padding: 10px; background: #30363d; border-radius: 8px; position: relative;
 }
 
 .cell { width: 100px; height: 100px; background: #0d1117; display: flex; align-items: center; justify-content: center; font-size: 3rem; cursor: pointer; }
 
-/* PAINEL DE RESULTADO TRANSPARENTE PARA VER A JOGADA */
-#result-overlay { 
-    position: absolute; inset: 0; 
-    background: rgba(0, 0, 0, 0.7); /* Fundo escurecido, mas visível */
-    display: flex; flex-direction: column; align-items: center; justify-content: center; 
-    border-radius: 8px; z-index: 10; 
+/* OVERLAY TRANSPARENTE */
+#result-overlay {
+    position: absolute; inset: 0; background: rgba(0,0,0,0.8);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    border-radius: 8px; z-index: 10;
 }
 
-#result-message { color: #fff; text-shadow: 0 0 10px #000; margin-bottom: 10px; font-size: 1.5rem; text-align: center; }
+.scoreboard { display: flex; align-items: center; gap: 50px; background: #161b22; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+.side { text-align: center; }
+.side div { font-size: 2.5rem; color: #00ff88; font-weight: bold; }
 
-.btn-rev { background: #238636; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; font-weight: bold; }
-.btn-out { background: #f85149; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; font-weight: bold; }
+.header-info { display: flex; justify-content: space-between; width: 320px; margin-bottom: 10px; }
+.user-badge { background: #00ff88; color: #000; padding: 5px 10px; border-radius: 4px; font-weight: bold; }
+.timer { color: #f85149; font-weight: bold; }
 
-.scoreboard { display: flex; align-items: center; gap: 40px; margin-bottom: 20px; background: #161b22; padding: 10px 20px; border-radius: 8px; }
+.btn-rev { background: #238636; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; margin: 5px; }
+.btn-out { background: #f85149; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; margin: 5px; }
+
+input { padding: 10px; margin: 5px; border-radius: 4px; border: 1px solid #30363d; background: #0d1117; color: white; }
