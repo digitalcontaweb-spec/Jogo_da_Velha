@@ -1,10 +1,10 @@
 const socket = io();
 let myRole = null, currentRoom = null, myTurn = false, countdown = null, timeLeft = 15;
 
-window.onload = () => { setTimeout(skipIntro, 5000); };
+window.onload = () => { setTimeout(skipIntro, 4000); };
 function skipIntro() {
     document.getElementById('intro').style.display = 'none';
-    document.getElementById('setup').style.display = 'block';
+    document.getElementById('setup').style.display = 'flex';
 }
 
 function showRules() {
@@ -45,7 +45,7 @@ socket.on('update_all', (data) => {
     const cells = document.querySelectorAll('.cell');
     data.board.forEach((val, i) => {
         cells[i].innerText = val || '';
-        cells[i].style.color = (val === 'X') ? '#2ea043' : '#f85149';
+        cells[i].style.color = (val === 'X') ? '#00ff88' : '#f85149';
     });
 
     document.getElementById('nameX').innerText = data.players['X'] || 'AGUARDANDO...';
@@ -55,20 +55,18 @@ socket.on('update_all', (data) => {
 
     if (data.winner) {
         clearInterval(countdown);
-        // BUSCA O NOME REAL DO VENCEDOR
-        const winnerName = data.winner === 'Velha' ? "EMPATE!" : (data.players[data.winner] + " VENCEU!");
-        document.getElementById('result-message').innerText = winnerName;
+        // Exibe o nome de quem venceu mapeando a letra para o nome no dicionário
+        const msg = data.winner === 'Velha' ? "EMPATE!" : (data.players[data.winner] + " VENCEU!");
+        document.getElementById('result-message').innerText = msg;
         document.getElementById('result-overlay').style.display = 'flex';
-        myTurn = false;
     } else {
         document.getElementById('result-overlay').style.display = 'none';
         myTurn = (data.turn === myRole);
-        
         if (data.ready_count >= 2) {
             document.getElementById('status').innerText = myTurn ? ">> SUA VEZ <<" : `AGUARDANDO: ${data.players[data.turn]}`;
             if (data.started) startTimer();
         } else {
-            document.getElementById('status').innerText = "AGUARDANDO OPONENTE LER AS REGRAS...";
+            document.getElementById('status').innerText = "AGUARDANDO OPONENTE...";
         }
     }
 });
