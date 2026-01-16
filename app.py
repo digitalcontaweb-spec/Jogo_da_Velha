@@ -2,7 +2,7 @@ import eventlet
 eventlet.monkey_patch() 
 
 from flask import Flask, render_template
-from flask_socketio import SocketIO, emit, join_room
+from flask_socketio import SocketIO, emit, join_room, close_room
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
@@ -24,27 +24,19 @@ def index():
 def handle_join(data):
     room, name = data['room'], data['name']
     join_room(room)
-    
     if room not in rooms:
         rooms[room] = {
             'board': [None]*9, 'players': {}, 'turn': 'X', 'starter': 'X',
             'score': {'X': 0, 'O': 0}, 'winner': None, 'history': {'X': [], 'O': []},
             'started': False, 'ready_count': 0
         }
-    
     game = rooms[room]
-    role = None
-    for r, n in game['players'].items():
-        if n == name:
-            role = r
-            break
-            
+    role = next((r for r, n in game['players'].items() if n == name), None)
     if not role:
         if 'X' not in game['players']: role = 'X'
         elif 'O' not in game['players']: role = 'O'
         else: role = 'Espectador'
         if role != 'Espectador': game['players'][role] = name
-
     emit('assign_role', {'role': role, 'name': name})
     emit('update_all', game, room=room)
 
@@ -71,33 +63,22 @@ def handle_move(data):
             game['turn'] = 'O' if role == 'X' else 'X'
         emit('update_all', game, room=room)
 
-@socketio.on('timeout_punishment')
-def handle_timeout(data):
-    room, role = data['room'], data['role']
-    game = rooms.get(room)
-    if game and game['turn'] == role and not game['winner']:
-        if game['history'][role]:
-            last_idx = game['history'][role].pop()
-            game['board'][last_idx] = None
-        game['turn'] = 'O' if role == 'X' else 'X'
-        emit('update_all', game, room=room)
-
 @socketio.on('reset_game')
 def handle_reset(data):
     room = data['room']
     if room in rooms:
         game = rooms[room]
         game['starter'] = 'O' if game['starter'] == 'X' else 'X'
-        game.update({
-            'board': [None]*9, 'winner': None, 'turn': game['starter'], 
-            'history': {'X': [], 'O': []}, 'started': False
-        })
+        game.update({'board': [None]*9, 'winner': None, 'turn': game['starter'], 'history': {'X': [], 'O': []}, 'started': False})
         emit('update_all', game, room=room)
 
-@socketio.on('full_reset')
-def handle_full_reset(data):
-    emit('force_setup', room=data['room'])
-    if data['room'] in rooms: del rooms[data['room']]
+@socketio.on('quit_game')
+def handle_quit(data):
+    room = data['room']
+    # Notifica todos na sala para resetarem para a tela inicial
+    emit('force_quit_all', room=room)
+    if room in rooms:
+        del rooms[room]
 
 if __name__ == '__main__':
     socketio.run(app)
