@@ -1,11 +1,11 @@
 const socket = io();
 let myRole = null, currentRoom = null, myTurn = false, countdown = null, timeLeft = 15;
 
-// Controle da Abertura
+// Intro
 window.onload = () => {
-    const audio = document.getElementById('introSound');
-    audio.play().catch(() => console.log("Som aguardando interação"));
-    setTimeout(() => { skipIntro(); }, 5000); // Pula automático após 5s
+    const s = document.getElementById('introSound');
+    s.play().catch(() => {});
+    setTimeout(skipIntro, 6000); 
 };
 
 function skipIntro() {
@@ -14,9 +14,8 @@ function skipIntro() {
 }
 
 function showRules() {
-    const n = document.getElementById('nameInput').value;
-    const r = document.getElementById('roomInput').value;
-    if(n && r) document.getElementById('rules-modal').style.display = 'flex';
+    if(document.getElementById('nameInput').value && document.getElementById('roomInput').value)
+        document.getElementById('rules-modal').style.display = 'flex';
 }
 
 function joinGame() {
@@ -51,7 +50,7 @@ socket.on('update_all', (data) => {
     const cells = document.querySelectorAll('.cell');
     data.board.forEach((val, i) => {
         cells[i].innerText = val || '';
-        cells[i].style.color = (val === 'X') ? '#00ff88' : '#f85149';
+        cells[i].style.color = (val === 'X') ? '#00ff88' : '#ff4757';
     });
 
     document.getElementById('nameX').innerText = data.players['X'] || 'AGUARDANDO...';
@@ -61,19 +60,16 @@ socket.on('update_all', (data) => {
 
     if (data.winner) {
         clearInterval(countdown);
-        document.getElementById('result-overlay').style.display = 'flex';
         document.getElementById('result-message').innerText = data.winner === 'Velha' ? "EMPATE!" : "VENCEU!";
+        document.getElementById('result-overlay').style.display = 'flex';
     } else {
         document.getElementById('result-overlay').style.display = 'none';
         myTurn = (data.turn === myRole);
-        document.getElementById('status').innerText = myTurn ? ">> SUA VEZ <<" : `AGUARDANDO: ${data.players[data.turn]}`;
+        document.getElementById('status').innerText = myTurn ? ">> SUA VEZ <<" : `AGUARDANDO: ${data.players[data.turn] || 'OPONENTE'}`;
         
-        // MODIFICAÇÃO: Só inicia o timer se o jogo já tiver começado (1ª jogada feita)
-        if (data.started && data.players['X'] && data.players['O']) {
-            startTimer();
-        } else {
-            document.getElementById('timeLeft').innerText = "15"; // Fica parado em 15s até a 1ª jogada
-        }
+        // SÓ INICIA O TIMER SE O JOGO JÁ TIVER COMEÇADO E HOUVER 2 PLAYERS
+        if (data.started && data.players['X'] && data.players['O']) startTimer();
+        else document.getElementById('timeLeft').innerText = "15";
     }
 });
 
@@ -85,3 +81,5 @@ function handleChoice(a) {
     if (a === 'keep') socket.emit('reset_game', { room: currentRoom });
     else window.location.reload();
 }
+
+socket.on('force_setup', () => window.location.reload());
