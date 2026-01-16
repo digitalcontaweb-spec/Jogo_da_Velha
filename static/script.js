@@ -1,13 +1,7 @@
 const socket = io();
 let myRole = null, currentRoom = null, myTurn = false, countdown = null, timeLeft = 15;
 
-// Intro
-window.onload = () => {
-    const s = document.getElementById('introSound');
-    s.play().catch(() => {});
-    setTimeout(skipIntro, 6000); 
-};
-
+window.onload = () => { setTimeout(skipIntro, 5000); };
 function skipIntro() {
     document.getElementById('intro').style.display = 'none';
     document.getElementById('setup').style.display = 'block';
@@ -22,6 +16,7 @@ function joinGame() {
     const name = document.getElementById('nameInput').value;
     currentRoom = document.getElementById('roomInput').value;
     socket.emit('join', { name: name, room: currentRoom });
+    socket.emit('player_ready', { room: currentRoom }); // Avisa que VOCÊ está pronto
     document.getElementById('rules-modal').style.display = 'none';
     document.getElementById('setup').style.display = 'none';
     document.getElementById('game').style.display = 'block';
@@ -50,7 +45,7 @@ socket.on('update_all', (data) => {
     const cells = document.querySelectorAll('.cell');
     data.board.forEach((val, i) => {
         cells[i].innerText = val || '';
-        cells[i].style.color = (val === 'X') ? '#00ff88' : '#ff4757';
+        cells[i].style.color = (val === 'X') ? '#2ea043' : '#f85149';
     });
 
     document.getElementById('nameX').innerText = data.players['X'] || 'AGUARDANDO...';
@@ -65,11 +60,14 @@ socket.on('update_all', (data) => {
     } else {
         document.getElementById('result-overlay').style.display = 'none';
         myTurn = (data.turn === myRole);
-        document.getElementById('status').innerText = myTurn ? ">> SUA VEZ <<" : `AGUARDANDO: ${data.players[data.turn] || 'OPONENTE'}`;
         
-        // SÓ INICIA O TIMER SE O JOGO JÁ TIVER COMEÇADO E HOUVER 2 PLAYERS
-        if (data.started && data.players['X'] && data.players['O']) startTimer();
-        else document.getElementById('timeLeft').innerText = "15";
+        // SÓ LIBERA O STATUS E TIMER SE OS DOIS TIVEREM CLICADO EM "ESTOU PRONTO"
+        if (data.ready_count >= 2) {
+            document.getElementById('status').innerText = myTurn ? ">> SUA VEZ <<" : `AGUARDANDO: ${data.players[data.turn]}`;
+            if (data.started) startTimer();
+        } else {
+            document.getElementById('status').innerText = "AGUARDANDO OPONENTE LER AS REGRAS...";
+        }
     }
 });
 
@@ -81,5 +79,3 @@ function handleChoice(a) {
     if (a === 'keep') socket.emit('reset_game', { room: currentRoom });
     else window.location.reload();
 }
-
-socket.on('force_setup', () => window.location.reload());
