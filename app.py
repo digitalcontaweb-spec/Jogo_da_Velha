@@ -29,13 +29,10 @@ def handle_join(data):
         rooms[room] = {
             'board': [None]*9, 'players': {}, 'turn': 'X', 'starter': 'X',
             'score': {'X': 0, 'O': 0}, 'winner': None, 'history': {'X': [], 'O': []},
-            'started': False,
-            'ready_count': 0 # Contador para garantir que ambos leram as regras
+            'started': False, 'ready_count': 0
         }
     
     game = rooms[room]
-    
-    # Se o jogador já estava na sala (reconexão), mantém o papel
     role = None
     for r, n in game['players'].items():
         if n == name:
@@ -46,9 +43,7 @@ def handle_join(data):
         if 'X' not in game['players']: role = 'X'
         elif 'O' not in game['players']: role = 'O'
         else: role = 'Espectador'
-        
-        if role != 'Espectador':
-            game['players'][role] = name
+        if role != 'Espectador': game['players'][role] = name
 
     emit('assign_role', {'role': role, 'name': name})
     emit('update_all', game, room=room)
@@ -58,14 +53,12 @@ def handle_ready(data):
     room = data['room']
     if room in rooms:
         rooms[room]['ready_count'] += 1
-        # O jogo só libera as funções quando pelo menos 2 confirmarem
         emit('update_all', rooms[room], room=room)
 
 @socketio.on('make_move')
 def handle_move(data):
     room, idx, role = data['room'], data['index'], data['role']
     game = rooms.get(room)
-    # Só permite jogar se ambos estiverem prontos
     if game and game['ready_count'] >= 2 and game['board'][idx] is None and game['turn'] == role and not game['winner']:
         game['board'][idx] = role
         game['history'][role].append(idx)
