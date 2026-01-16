@@ -16,10 +16,10 @@ function joinGame() {
     const name = document.getElementById('nameInput').value;
     currentRoom = document.getElementById('roomInput').value;
     socket.emit('join', { name: name, room: currentRoom });
-    socket.emit('player_ready', { room: currentRoom }); // Avisa que VOCÊ está pronto
+    socket.emit('player_ready', { room: currentRoom });
     document.getElementById('rules-modal').style.display = 'none';
     document.getElementById('setup').style.display = 'none';
-    document.getElementById('game').style.display = 'block';
+    document.getElementById('game').style.display = 'flex';
 }
 
 function startTimer() {
@@ -55,13 +55,15 @@ socket.on('update_all', (data) => {
 
     if (data.winner) {
         clearInterval(countdown);
-        document.getElementById('result-message').innerText = data.winner === 'Velha' ? "EMPATE!" : "VENCEU!";
+        // BUSCA O NOME REAL DO VENCEDOR
+        const winnerName = data.winner === 'Velha' ? "EMPATE!" : (data.players[data.winner] + " VENCEU!");
+        document.getElementById('result-message').innerText = winnerName;
         document.getElementById('result-overlay').style.display = 'flex';
+        myTurn = false;
     } else {
         document.getElementById('result-overlay').style.display = 'none';
         myTurn = (data.turn === myRole);
         
-        // SÓ LIBERA O STATUS E TIMER SE OS DOIS TIVEREM CLICADO EM "ESTOU PRONTO"
         if (data.ready_count >= 2) {
             document.getElementById('status').innerText = myTurn ? ">> SUA VEZ <<" : `AGUARDANDO: ${data.players[data.turn]}`;
             if (data.started) startTimer();
