@@ -1,10 +1,26 @@
 const socket = io();
-let myRole = null, currentRoom = null, myTurn = false, countdown = null, timeLeft = 15;
+let myRole = null, currentRoom = null, myTurn = false, countdown = null;
 
-window.onload = () => { setTimeout(skipIntro, 4000); };
+// Só mostra a intro se for a primeira vez na sessão
+if (!sessionStorage.getItem('introPlayed')) {
+    window.onload = () => { 
+        setTimeout(() => {
+            document.getElementById('intro').style.display = 'none';
+            document.getElementById('setup').style.display = 'flex';
+            sessionStorage.setItem('introPlayed', 'true');
+        }, 5000);
+    };
+} else {
+    window.onload = () => {
+        document.getElementById('intro').style.display = 'none';
+        document.getElementById('setup').style.display = 'flex';
+    };
+}
+
 function skipIntro() {
     document.getElementById('intro').style.display = 'none';
     document.getElementById('setup').style.display = 'flex';
+    sessionStorage.setItem('introPlayed', 'true');
 }
 
 function showRules() {
@@ -22,60 +38,40 @@ function joinGame() {
     document.getElementById('game').style.display = 'flex';
 }
 
-function startTimer() {
-    clearInterval(countdown);
-    timeLeft = 15;
-    document.getElementById('timeLeft').innerText = timeLeft;
-    countdown = setInterval(() => {
-        timeLeft--;
-        document.getElementById('timeLeft').innerText = timeLeft;
-        if (timeLeft <= 0) {
-            clearInterval(countdown);
-            if (myTurn) socket.emit('timeout_punishment', { room: currentRoom, role: myRole });
-        }
-    }, 1000);
-}
-
-socket.on('assign_role', (data) => {
-    myRole = data.role;
-    document.getElementById('myBadge').innerText = `${data.name} [${myRole}]`;
-});
-
 socket.on('update_all', (data) => {
     const cells = document.querySelectorAll('.cell');
     data.board.forEach((val, i) => {
         cells[i].innerText = val || '';
-        cells[i].style.color = (val === 'X') ? '#00ff88' : '#f85149';
+        cells[i].style.color = (val === 'X') ? '#00ff88' : '#ef4444';
     });
 
-    document.getElementById('nameX').innerText = data.players['X'] || 'AGUARDANDO...';
-    document.getElementById('nameO').innerText = data.players['O'] || 'AGUARDANDO...';
+    document.getElementById('nameX').innerText = data.players['X'] || '---';
+    document.getElementById('nameO').innerText = data.players['O'] || '---';
     document.getElementById('valX').innerText = data.score.X;
     document.getElementById('valO').innerText = data.score.O;
 
     if (data.winner) {
         clearInterval(countdown);
-        // Exibe o nome de quem venceu mapeando a letra para o nome no dicionário
         const msg = data.winner === 'Velha' ? "EMPATE!" : (data.players[data.winner] + " VENCEU!");
         document.getElementById('result-message').innerText = msg;
         document.getElementById('result-overlay').style.display = 'flex';
     } else {
         document.getElementById('result-overlay').style.display = 'none';
         myTurn = (data.turn === myRole);
-        if (data.ready_count >= 2) {
-            document.getElementById('status').innerText = myTurn ? ">> SUA VEZ <<" : `AGUARDANDO: ${data.players[data.turn]}`;
-            if (data.started) startTimer();
-        } else {
-            document.getElementById('status').innerText = "AGUARDANDO OPONENTE...";
-        }
+        document.getElementById('status').innerText = data.ready_count >= 2 ? (myTurn ? ">> SUA VEZ <<" : `AGUARDANDO OPONENTE`) : "AGUARDANDO CONEXÃO...";
     }
+});
+
+function handleChoice(a) {
+    if (a === 'keep') socket.emit('reset_game', { room: currentRoom });
+    else socket.emit('quit_game', { room: currentRoom });
+}
+
+// Quando qualquer um sai, todos voltam para o login (sem intro)
+socket.on('force_quit_all', () => {
+    window.location.reload();
 });
 
 function move(idx) {
     if (myTurn) socket.emit('make_move', { index: idx, role: myRole, room: currentRoom });
-}
-
-function handleChoice(a) {
-    if (a === 'keep') socket.emit('reset_game', { room: currentRoom });
-    else window.location.reload();
 }
