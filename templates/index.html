@@ -10,45 +10,54 @@
 <body>
     <div id="intro">
         <div class="symbol-pulse">X</div>
-        <button class="skip-btn" onclick="skipIntro()">PULAR APRESENTAÇÃO</button>
     </div>
 
     <div id="setup" style="display:none">
-        <h1 style="color:#00ff88; font-size: 3rem; margin-bottom: 30px;">ARENA X</h1>
+        <h1 class="logo-title">ARENA X</h1>
         <div class="modal-box">
-            <input type="text" id="nameInput" placeholder="SEU NICKNAME" style="padding:12px; width:80%; margin-bottom:15px; border-radius:8px; border:1px solid #334155; background:#05070a; color:white;">
-            <input type="text" id="roomInput" placeholder="CÓDIGO DA SALA" style="padding:12px; width:80%; margin-bottom:20px; border-radius:8px; border:1px solid #334155; background:#05070a; color:white;">
-            <button class="btn-rev" style="width:85%" onclick="showRules()">INICIAR DESAFIO</button>
+            <input type="text" id="nameInput" placeholder="SEU NICKNAME">
+            <input type="text" id="roomInput" placeholder="CÓDIGO DA SALA">
+            <button class="btn-main" onclick="showRules()">INICIAR DESAFIO</button>
         </div>
     </div>
 
     <div id="rules-modal" style="display:none">
         <div class="modal-box">
-            <h2 style="color:#00ff88">📜 REGRAS DA ARENA</h2>
-            <ul style="text-align:left; line-height:1.8; color:#cbd5e1">
+            <h2 class="rules-title">📜 REGRAS DA ARENA</h2>
+            <ul class="rules-list">
                 <li>O tempo de 15s só começa após o 1º movimento.</li>
                 <li>Punição: Se o tempo esgotar, sua última jogada some.</li>
                 <li>O vencedor do round anterior começa a próxima partida.</li>
             </ul>
-            <button class="btn-rev" style="width:100%; margin-top:20px;" onclick="joinGame()">ESTOU PRONTO!</button>
+            <button class="btn-main" onclick="joinGame()">ESTOU PRONTO!</button>
         </div>
     </div>
 
-    <div id="game" style="display:none; flex-direction:column; align-items:center;">
+    <div id="game" style="display:none">
         <div class="scoreboard">
-            <div class="side"><span id="nameX">...</span><div id="valX">0</div></div>
-            <div style="font-weight:bold; color:#475569">VS</div>
-            <div class="side"><span id="nameO">...</span><div id="valO">0</div></div>
+            <div class="side"><span id="nameX">---</span><div id="valX">0</div></div>
+            <div class="vs-label">VS</div>
+            <div class="side"><span id="nameO">---</span><div id="valO">0</div></div>
         </div>
-        <p id="status" style="color:#00ff88; letter-spacing:2px; font-weight:bold; margin-bottom:20px;"></p>
-        <div class="grid">
-            <div class="cell" onclick="move(0)"></div><div class="cell" onclick="move(1)"></div><div class="cell" onclick="move(2)"></div>
-            <div class="cell" onclick="move(3)"></div><div class="cell" onclick="move(4)"></div><div class="cell" onclick="move(5)"></div>
-            <div class="cell" onclick="move(6)"></div><div class="cell" onclick="move(7)"></div><div class="cell" onclick="move(8)"></div>
-            <div id="result-overlay" style="display:none">
-                <h2 id="result-message"></h2>
-                <button class="btn-rev" onclick="handleChoice('keep')">Revanche</button>
-                <button class="btn-out" onclick="handleChoice('exit')">Sair do jogo</button>
+        
+        <div class="game-info">
+            <div id="myBadge" class="badge">---</div>
+            <div class="timer">TEMPO: <span id="timeLeft">15</span>s</div>
+        </div>
+
+        <p id="status"></p>
+
+        <div class="arena-container">
+            <div class="grid">
+                <div class="cell" onclick="move(0)"></div><div class="cell" onclick="move(1)"></div><div class="cell" onclick="move(2)"></div>
+                <div class="cell" onclick="move(3)"></div><div class="cell" onclick="move(4)"></div><div class="cell" onclick="move(5)"></div>
+                <div class="cell" onclick="move(6)"></div><div class="cell" onclick="move(7)"></div><div class="cell" onclick="move(8)"></div>
+                
+                <div id="result-overlay" style="display:none">
+                    <h2 id="result-message"></h2>
+                    <button class="btn-rev" onclick="handleChoice('keep')">Revanche</button>
+                    <button class="btn-out" onclick="handleChoice('exit')">Sair do jogo</button>
+                </div>
             </div>
         </div>
     </div>
