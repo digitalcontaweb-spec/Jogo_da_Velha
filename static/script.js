@@ -1,59 +1,58 @@
-const socket = io();
-let myRole = null, myName = null, currentRoom = null, myTurn = false;
+// ... (mantenha as variáveis e as funções iniciais como estão)
 
-// Garante que a animação dure 5 segundos
-window.onload = () => { 
-    setTimeout(() => {
-        document.getElementById('intro').style.display = 'none';
-        document.getElementById('setup').style.display = 'flex';
-    }, 5000); 
-};
-
-function showRules() {
-    myName = document.getElementById('nameInput').value;
-    currentRoom = document.getElementById('roomInput').value;
-    if(myName && currentRoom) {
-        document.getElementById('setup').style.display = 'none';
-        document.getElementById('rules-modal').style.display = 'flex';
-    }
+function startTimer() {
+    clearInterval(countdown);
+    timeLeft = 15;
+    document.getElementById('timeLeft').innerText = timeLeft;
+    countdown = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timeLeft').innerText = timeLeft;
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            // Aqui você pode adicionar a lógica de punição se desejar
+        }
+    }, 1000);
 }
-
-function joinGame() {
-    socket.emit('join', { name: myName, room: currentRoom });
-    socket.emit('player_ready', { name: myName, room: currentRoom });
-    document.getElementById('rules-modal').style.display = 'none';
-    document.getElementById('game').style.display = 'flex';
-}
-
-socket.on('assign_role', (data) => { myRole = data.role; });
 
 socket.on('update_all', (data) => {
-    // Tabuleiro
+    // 1. Atualiza o tabuleiro e cores (Mantido)
     const cells = document.querySelectorAll('.cell');
     data.board.forEach((val, i) => {
         cells[i].innerText = val || '';
         cells[i].style.color = (val === 'X') ? '#00ff88' : '#ef4444';
     });
 
-    // Placar
+    // 2. Atualiza Placar e Nomes (Mantido)
     document.getElementById('nameX').innerText = data.players['X'] || '---';
     document.getElementById('nameO').innerText = data.players['O'] || '---';
     document.getElementById('valX').innerText = data.score.X;
     document.getElementById('valO').innerText = data.score.O;
 
-    // Vencedor
+    // 3. Lógica de vitória ou continuidade (CORRIGIDO)
     if (data.winner) {
+        clearInterval(countdown); // Para o tempo se houver vencedor
         const msg = data.winner === 'Velha' ? "EMPATE!" : (data.players[data.winner] + " VENCEU!");
         document.getElementById('result-message').innerText = msg;
         document.getElementById('result-overlay').style.display = 'flex';
     } else {
         document.getElementById('result-overlay').style.display = 'none';
         myTurn = (data.turn === myRole);
-        document.getElementById('status').innerText = (data.ready_count >= 2) ? 
-            (myTurn ? ">> SUA VEZ <<" : `AGUARDANDO: ${data.players[data.turn]}`) : "AGUARDANDO OPONENTE...";
+        
+        if (data.ready_count >= 2) {
+            document.getElementById('status').innerText = myTurn ? ">> SUA VEZ <<" : `AGUARDANDO: ${data.players[data.turn]}`;
+            
+            // DISPARO DO CRONÔMETRO: Só inicia se o jogo já começou (started: True no servidor)
+            if (data.started) {
+                startTimer();
+            } else {
+                // Se o jogo ainda não começou, apenas exibe os 15s parados (Visual Profissional)
+                clearInterval(countdown);
+                document.getElementById('timeLeft').innerText = "15";
+            }
+        } else {
+            document.getElementById('status').innerText = "AGUARDANDO OPONENTE...";
+        }
     }
 });
 
-function move(idx) { if (myTurn) socket.emit('make_move', { index: idx, role: myRole, room: currentRoom }); }
-function handleChoice(a) { socket.emit(a === 'keep' ? 'reset_game' : 'quit_game', { room: currentRoom }); }
-socket.on('force_quit_all', () => { window.location.reload(); });
+// ... (mantenha o restante das funções move, joinGame, etc.)
