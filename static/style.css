@@ -1,26 +1,38 @@
 body {
     background: #05070a; color: #fff; font-family: 'Segoe UI', sans-serif;
-    margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden;
+    margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden;
 }
 
-/* INTRODUÇÃO VISÍVEL */
-#intro { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.symbol-pulse { font-size: 12rem; color: #00ff88; text-shadow: 0 0 30px #00ff88; animation: pulse 2s infinite; font-weight: bold; }
-@keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.5; } }
+/* INTRO */
+#intro { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; }
+.symbol-pulse { font-size: 10rem; color: #00ff88; text-shadow: 0 0 30px #00ff88; animation: pulse 2s infinite; font-weight: bold; }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); opacity: 0.7; } }
 
-/* PLACAR E GRID */
-.scoreboard { display: flex; align-items: center; gap: 60px; background: #111418; padding: 20px 40px; border-radius: 15px; border: 1px solid #1f2937; margin-bottom: 20px; }
-.side div { font-size: 3rem; color: #00ff88; font-weight: bold; }
-
-.grid { 
-    display: grid; grid-template-columns: repeat(3, 110px); gap: 15px; 
-    padding: 15px; background: #0f172a; border-radius: 15px; border: 1px solid #00ff88; position: relative;
-}
-.cell { 
-    width: 110px; height: 110px; background: #1e293b; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center; font-size: 3.5rem; cursor: pointer;
+/* ESTRUTURA DOS MODAIS */
+#setup, #rules-modal { position: fixed; inset: 0; background: rgba(5,7,10,0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+.modal-box { 
+    background: #111418; border: 2px solid #00ff88; padding: 40px; border-radius: 20px; 
+    text-align: center; width: 90%; max-width: 400px; box-shadow: 0 0 40px rgba(0,255,136,0.1);
 }
 
-#result-overlay { position: absolute; inset: 0; background: rgba(15,23,42,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 15px; z-index: 50; }
-.btn-rev { background: #00ff88; color: #000; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; margin: 5px; }
-.btn-out { background: #ef4444; color: #fff; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; margin: 5px; }
+.logo-title { color: #00ff88; font-size: 3rem; margin-bottom: 20px; text-shadow: 0 0 10px rgba(0,255,136,0.5); }
+input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #334155; background: #05070a; color: #fff; box-sizing: border-box; }
+.btn-main { width: 100%; background: #00ff88; color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+
+/* REGRAS */
+.rules-title { color: #00ff88; margin-bottom: 20px; }
+.rules-list { text-align: left; color: #cbd5e1; line-height: 1.6; margin-bottom: 25px; padding-left: 20px; }
+
+/* JOGO CENTRALIZADO */
+#game { display: flex; flex-direction: column; align-items: center; }
+.scoreboard { display: flex; align-items: center; gap: 40px; background: #111418; padding: 15px 30px; border-radius: 12px; border: 1px solid #1f2937; margin-bottom: 20px; }
+.vs-label { color: #475569; font-weight: bold; }
+.side div { font-size: 2.5rem; color: #00ff88; font-weight: bold; }
+
+.arena-container { position: relative; }
+.grid { display: grid; grid-template-columns: repeat(3, 110px); gap: 12px; padding: 12px; background: #0f172a; border-radius: 15px; border: 1px solid #00ff88; }
+.cell { width: 110px; height: 110px; background: #1e293b; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 3rem; cursor: pointer; }
+
+#result-overlay { position: absolute; inset: 0; background: rgba(15,23,42,0.92); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; border-radius: 12px; }
+.btn-rev { background: #00ff88; color: #000; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; margin: 5px; }
+.btn-out { background: #ef4444; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; margin: 5px; }
