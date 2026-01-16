@@ -1,37 +1,44 @@
 body {
-    background: #0d1117; color: #fff; font-family: sans-serif;
+    background: #05070a; color: #e0e0e0; font-family: 'Segoe UI', Roboto, sans-serif;
     margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;
 }
 
-#intro, #setup, #rules-modal { position: fixed; inset: 0; background: #0d1117; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+/* INTRO COM CONTRASTE */
+#intro { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.symbol-pulse { font-size: 12rem; color: #00ff88; text-shadow: 0 0 40px #00ff88; animation: pulse 1.5s infinite; font-weight: bold; }
+@keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.6; } }
 
-#game { display: flex; flex-direction: column; align-items: center; width: 100%; }
-
-.grid-container { position: relative; display: flex; justify-content: center; width: 100%; }
-
-.grid { 
-    display: grid; grid-template-columns: repeat(3, 100px); gap: 10px; 
-    padding: 10px; background: #30363d; border-radius: 8px; position: relative;
+/* LOGIN E REGRAS MODERNAS */
+#setup, #rules-modal { position: fixed; inset: 0; background: rgba(5,7,10,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+.modal-box { 
+    background: #111418; border: 2px solid #00ff88; padding: 40px; border-radius: 20px; 
+    text-align: center; max-width: 450px; box-shadow: 0 0 30px rgba(0,255,136,0.15);
 }
 
-.cell { width: 100px; height: 100px; background: #0d1117; display: flex; align-items: center; justify-content: center; font-size: 3rem; cursor: pointer; }
+/* PLACAR GEOMÉTRICO */
+.scoreboard { 
+    display: flex; align-items: center; gap: 60px; background: #111418; 
+    padding: 20px 40px; border-radius: 15px; border: 1px solid #1f2937; margin-bottom: 30px;
+}
+.side div { font-size: 3rem; color: #00ff88; text-shadow: 0 0 10px rgba(0,255,136,0.5); font-weight: bold; }
+
+/* GRID ARENA */
+.grid { 
+    display: grid; grid-template-columns: repeat(3, 110px); gap: 15px; 
+    padding: 15px; background: #0f172a; border-radius: 15px; border: 1px solid #00ff88; position: relative;
+}
+.cell { 
+    width: 110px; height: 110px; background: #1e293b; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; font-size: 3.5rem; cursor: pointer; transition: 0.3s;
+}
+.cell:hover { background: #334155; transform: translateY(-2px); }
 
 /* OVERLAY TRANSPARENTE */
 #result-overlay {
-    position: absolute; inset: 0; background: rgba(0,0,0,0.8);
+    position: absolute; inset: 0; background: rgba(15,23,42,0.85);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    border-radius: 8px; z-index: 10;
+    border-radius: 15px; z-index: 50; backdrop-filter: blur(4px);
 }
 
-.scoreboard { display: flex; align-items: center; gap: 50px; background: #161b22; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
-.side { text-align: center; }
-.side div { font-size: 2.5rem; color: #00ff88; font-weight: bold; }
-
-.header-info { display: flex; justify-content: space-between; width: 320px; margin-bottom: 10px; }
-.user-badge { background: #00ff88; color: #000; padding: 5px 10px; border-radius: 4px; font-weight: bold; }
-.timer { color: #f85149; font-weight: bold; }
-
-.btn-rev { background: #238636; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; margin: 5px; }
-.btn-out { background: #f85149; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; margin: 5px; }
-
-input { padding: 10px; margin: 5px; border-radius: 4px; border: 1px solid #30363d; background: #0d1117; color: white; }
+.btn-rev { background: #00ff88; color: #000; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; margin: 5px; }
+.btn-out { background: #ef4444; color: #fff; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; margin: 5px; }
