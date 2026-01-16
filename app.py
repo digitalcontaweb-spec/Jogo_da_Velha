@@ -1,5 +1,5 @@
 import eventlet
-eventlet.monkey_patch()
+eventlet.monkey_patch() 
 
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit, join_room
@@ -24,20 +24,22 @@ def index():
 def handle_join(data):
     room, name = data['room'], data['name']
     join_room(room)
+    
     if room not in rooms:
         rooms[room] = {
             'board': [None]*9, 'players': {}, 'turn': 'X', 'starter': 'X',
             'score': {'X': 0, 'O': 0}, 'winner': None, 'history': {'X': [], 'O': []},
-            'started': False # Novo campo: O jogo só "começa" de fato após a 1ª jogada
+            'started': False # Trava o timer até a 1ª jogada
         }
+    
     game = rooms[room]
     if 'X' not in game['players'] or game['players'].get('X') == name:
-        role = 'X'
-        game['players']['X'] = name
+        role, game['players']['X'] = 'X', name
     elif 'O' not in game['players'] or game['players'].get('O') == name:
-        role = 'O'
-        game['players']['O'] = name
-    else: role = 'Espectador'
+        role, game['players']['O'] = 'O', name
+    else:
+        role = 'Espectador'
+    
     emit('assign_role', {'role': role, 'name': name})
     emit('update_all', game, room=room)
 
@@ -45,15 +47,18 @@ def handle_join(data):
 def handle_move(data):
     room, idx, role = data['room'], data['index'], data['role']
     game = rooms.get(room)
+    
     if game and game['board'][idx] is None and game['turn'] == role and not game['winner']:
         game['board'][idx] = role
         game['history'][role].append(idx)
-        game['started'] = True # Ativa o timer globalmente para a sala
+        game['started'] = True # DISPARA O TIMER NA SALA
+        
         res = check_winner(game['board'])
         if res:
             game['winner'] = res
             if res != 'Velha': game['score'][res] += 1
-        else: game['turn'] = 'O' if role == 'X' else 'X'
+        else:
+            game['turn'] = 'O' if role == 'X' else 'X'
         emit('update_all', game, room=room)
 
 @socketio.on('timeout_punishment')
@@ -75,7 +80,7 @@ def handle_reset(data):
         game['starter'] = 'O' if game['starter'] == 'X' else 'X'
         game.update({
             'board': [None]*9, 'winner': None, 'turn': game['starter'], 
-            'history': {'X': [], 'O': []}, 'started': False # Reseta o timer para a revanche
+            'history': {'X': [], 'O': []}, 'started': False
         })
         emit('update_all', game, room=room)
 
