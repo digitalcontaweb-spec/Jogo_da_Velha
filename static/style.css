@@ -1,27 +1,27 @@
 body {
-    background: #0d1117;
-    background-image: linear-gradient(rgba(0, 255, 136, 0.05) 1.5px, transparent 1.5px), 
-                      linear-gradient(90deg, rgba(0, 255, 136, 0.05) 1.5px, transparent 1.5px);
-    background-size: 50px 50px;
-    color: #fff; font-family: 'Segoe UI', sans-serif;
-    display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;
+    background: #050505; color: #fff; font-family: 'Courier New', monospace;
+    display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden;
 }
 
-.panel { background: #161b22; padding: 40px; border-radius: 15px; border: 1px solid #30363d; text-align: center; }
-.logo { font-size: 2.5rem; letter-spacing: 3px; }
+/* ANIMAÇÃO DE INTRO */
+#intro { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.arena-symbol { font-size: 15rem; color: #00ff88; text-shadow: 0 0 30px #00ff88; animation: pulse 1.5s infinite; }
+.skip-btn { margin-top: 50px; background: transparent; border: 1px solid #333; color: #555; cursor: pointer; padding: 5px 15px; }
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* MODAL DE REGRAS */
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 500; display: flex; align-items: center; justify-content: center; }
+.modal-content { background: #111; border: 2px solid #00ff88; padding: 30px; border-radius: 10px; max-width: 400px; text-align: center; }
+.modal-content ul { text-align: left; color: #ccc; line-height: 1.6; }
+.btn-confirm { background: #00ff88; color: #000; font-weight: bold; border: none; padding: 15px 30px; cursor: pointer; width: 100%; margin-top: 20px; }
+
+/* PLACAR E STATUS */
 .logo span { color: #00ff88; text-shadow: 0 0 10px #00ff88; }
-
-.header { display: flex; justify-content: space-between; align-items: center; width: 320px; margin-bottom: 10px; }
-.badge { background: #00ff88; color: #000; padding: 5px 15px; border-radius: 5px; font-weight: bold; }
-.timer-box { color: #ff4444; font-weight: bold; font-family: monospace; font-size: 1.2rem; }
-
-.scoreboard { display: flex; align-items: center; gap: 40px; margin-bottom: 20px; }
-.pts { font-size: 2.5rem; color: #00ff88; font-weight: bold; }
-
-.board { display: grid; grid-template-columns: repeat(3, 100px); gap: 8px; border: 2px solid #00ff88; padding: 8px; border-radius: 10px; }
-.cell { width: 100px; height: 100px; background: #161b22; display: flex; align-items: center; justify-content: center; font-size: 3rem; font-weight: bold; cursor: pointer; border-radius: 5px; }
-.cell:hover { background: #1f242c; }
-
-#result-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; border-radius: 10px; }
-.btn-rev { background: #00ff88; border: none; padding: 12px 25px; font-weight: bold; cursor: pointer; margin: 5px; }
-.btn-out { background: #f85149; color: #fff; border: none; padding: 12px 25px; font-weight: bold; cursor: pointer; margin: 5px; }
+.timer-box { font-size: 1.5rem; color: #ff4444; }
+.status-msg { font-weight: bold; color: #00ff88; letter-spacing: 2px; }
+.board { border: 4px solid #00ff88; box-shadow: 0 0 20px rgba(0,255,136,0.3); }
