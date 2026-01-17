@@ -5,7 +5,6 @@ function skipIntro() {
     document.getElementById('intro').style.display = 'none';
     document.getElementById('setup').style.display = 'flex';
 }
-
 window.onload = () => { setTimeout(skipIntro, 5000); };
 
 function showRules() {
@@ -41,16 +40,15 @@ socket.on('assign_role', (data) => {
 });
 
 socket.on('update_all', (data) => {
-    // 1. Atualiza Tabuleiro
     const cells = document.querySelectorAll('.cell');
     data.board.forEach((val, i) => {
         cells[i].innerText = val || '';
         cells[i].style.color = (val === 'X') ? '#00ff88' : '#ef4444';
     });
 
-    // 2. Atualiza Placar e Nomes
-    document.getElementById('nameX').innerText = data.players['X'] || '---';
-    document.getElementById('nameO').innerText = data.players['O'] || '---';
+    // Atualiza Placar e Nomes
+    document.getElementById('nameX').innerText = data.players['X'] || 'AGUARDANDO...';
+    document.getElementById('nameO').innerText = data.players['O'] || 'AGUARDANDO...';
     document.getElementById('valX').innerText = data.score.X;
     document.getElementById('valO').innerText = data.score.O;
 
@@ -60,17 +58,12 @@ socket.on('update_all', (data) => {
         document.getElementById('result-overlay').style.display = 'flex';
     } else {
         document.getElementById('result-overlay').style.display = 'none';
-        
-        // CORREÇÃO: Sincronização de turno forçada
         myTurn = (data.turn === myRole);
         
         if (data.ready_count >= 2) {
             document.getElementById('status').innerText = myTurn ? ">> SUA VEZ <<" : `AGUARDANDO: ${data.players[data.turn]}`;
             if (data.started) startTimer();
-            else {
-                clearInterval(countdown);
-                document.getElementById('timeLeft').innerText = "15";
-            }
+            else { clearInterval(countdown); document.getElementById('timeLeft').innerText = "15"; }
         } else {
             document.getElementById('status').innerText = "AGUARDANDO OPONENTE...";
         }
@@ -82,6 +75,5 @@ function move(idx) {
         socket.emit('make_move', { index: idx, role: myRole, room: currentRoom }); 
     }
 }
-
 function handleChoice(a) { socket.emit(a === 'keep' ? 'reset_game' : 'quit_game', { room: currentRoom }); }
 socket.on('force_quit_all', () => { window.location.reload(); });
