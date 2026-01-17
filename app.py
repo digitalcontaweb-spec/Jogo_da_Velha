@@ -30,14 +30,14 @@ def handle_join(data):
             'ready_players': set()
         }
     g = rooms[room]
-    # Atribuição robusta de papéis
+    
+    # Garante que o primeiro a entrar seja X e o segundo seja O
     if name not in g['players'].values():
         if 'X' not in g['players']: g['players']['X'] = name
         elif 'O' not in g['players']: g['players']['O'] = name
     
     role = next((r for r, n in g['players'].items() if n == name), 'Espectador')
     emit('assign_role', {'role': role, 'name': name})
-    # Atualiza todos para que os nomes apareçam no placar imediatamente
     emit('update_all', {**g, 'ready_count': len(g['ready_players'])}, room=room)
 
 @socketio.on('player_ready')
@@ -45,13 +45,15 @@ def handle_ready(data):
     room, name = data['room'], data['name']
     if room in rooms:
         rooms[room]['ready_players'].add(name)
+        # Força atualização para liberar o tabuleiro se houver 2 prontos
         emit('update_all', {**rooms[room], 'ready_count': len(rooms[room]['ready_players'])}, room=room)
 
 @socketio.on('make_move')
 def handle_move(data):
     room, idx, role = data['room'], data['index'], data['role']
     g = rooms.get(room)
-    if g and len(g['ready_players']) >= 2 and g['board'][idx] is None and g['turn'] == role and not g['winner']:
+    # Só move se houver 2 jogadores e for o turno certo
+    if g and len(g['players']) >= 2 and g['board'][idx] is None and g['turn'] == role and not g['winner']:
         g['board'][idx] = role
         g['started'] = True 
         res = check_winner(g['board'])
