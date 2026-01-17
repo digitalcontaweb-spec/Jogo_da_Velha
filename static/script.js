@@ -40,13 +40,14 @@ socket.on('assign_role', (data) => {
 });
 
 socket.on('update_all', (data) => {
+    // Tabuleiro
     const cells = document.querySelectorAll('.cell');
     data.board.forEach((val, i) => {
         cells[i].innerText = val || '';
         cells[i].style.color = (val === 'X') ? '#00ff88' : '#ef4444';
     });
 
-    // Atualiza Placar e Nomes
+    // Nomes e Placar
     document.getElementById('nameX').innerText = data.players['X'] || 'AGUARDANDO...';
     document.getElementById('nameO').innerText = data.players['O'] || 'AGUARDANDO...';
     document.getElementById('valX').innerText = data.score.X;
@@ -60,7 +61,8 @@ socket.on('update_all', (data) => {
         document.getElementById('result-overlay').style.display = 'none';
         myTurn = (data.turn === myRole);
         
-        if (data.ready_count >= 2) {
+        // Só libera o jogo se houver 2 jogadores
+        if (Object.keys(data.players).length >= 2) {
             document.getElementById('status').innerText = myTurn ? ">> SUA VEZ <<" : `AGUARDANDO: ${data.players[data.turn]}`;
             if (data.started) startTimer();
             else { clearInterval(countdown); document.getElementById('timeLeft').innerText = "15"; }
