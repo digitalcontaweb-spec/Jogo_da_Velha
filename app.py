@@ -1,6 +1,5 @@
 import eventlet
 eventlet.monkey_patch() 
-
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit, join_room
 
@@ -30,14 +29,16 @@ def handle_join(data):
             'score': {'X': 0, 'O': 0}, 'winner': None, 'started': False, 
             'ready_players': set()
         }
-    game = rooms[room]
-    if name not in game['players'].values():
-        if 'X' not in game['players']: game['players']['X'] = name
-        elif 'O' not in game['players']: game['players']['O'] = name
+    g = rooms[room]
+    # Atribuição robusta de papéis
+    if name not in g['players'].values():
+        if 'X' not in g['players']: g['players']['X'] = name
+        elif 'O' not in g['players']: g['players']['O'] = name
     
-    role = next((r for r, n in game['players'].items() if n == name), 'Espectador')
+    role = next((r for r, n in g['players'].items() if n == name), 'Espectador')
     emit('assign_role', {'role': role, 'name': name})
-    emit('update_all', {**game, 'ready_count': len(game['ready_players'])}, room=room)
+    # Atualiza todos para que os nomes apareçam no placar imediatamente
+    emit('update_all', {**g, 'ready_count': len(g['ready_players'])}, room=room)
 
 @socketio.on('player_ready')
 def handle_ready(data):
@@ -49,17 +50,17 @@ def handle_ready(data):
 @socketio.on('make_move')
 def handle_move(data):
     room, idx, role = data['room'], data['index'], data['role']
-    game = rooms.get(room)
-    if game and len(game['ready_players']) >= 2 and game['board'][idx] is None and game['turn'] == role and not game['winner']:
-        game['board'][idx] = role
-        game['started'] = True 
-        res = check_winner(game['board'])
+    g = rooms.get(room)
+    if g and len(g['ready_players']) >= 2 and g['board'][idx] is None and g['turn'] == role and not g['winner']:
+        g['board'][idx] = role
+        g['started'] = True 
+        res = check_winner(g['board'])
         if res:
-            game['winner'] = res
-            if res != 'Velha': game['score'][res] += 1
+            g['winner'] = res
+            if res != 'Velha': g['score'][res] += 1
         else:
-            game['turn'] = 'O' if role == 'X' else 'X'
-        emit('update_all', {**game, 'ready_count': len(game['ready_players'])}, room=room)
+            g['turn'] = 'O' if role == 'X' else 'X'
+        emit('update_all', {**g, 'ready_count': len(g['ready_players'])}, room=room)
 
 @socketio.on('reset_game')
 def handle_reset(data):
@@ -76,4 +77,4 @@ def handle_quit(data):
     if data['room'] in rooms: del rooms[data['room']]
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    socketio.run(app)
