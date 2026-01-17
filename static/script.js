@@ -1,17 +1,12 @@
 const socket = io();
 let myRole = null, myName = null, currentRoom = null, myTurn = false, countdown = null, timeLeft = 15;
 
-// CONTROLE DA ANIMAÇÃO (Garante 5 segundos ou clique)
 function skipIntro() {
-    const intro = document.getElementById('intro');
-    if (intro) intro.style.display = 'none';
+    document.getElementById('intro').style.display = 'none';
     document.getElementById('setup').style.display = 'flex';
 }
 
-window.onload = () => { 
-    // Removido sessionStorage temporariamente para você testar a animação sempre
-    setTimeout(skipIntro, 5000); 
-};
+window.onload = () => { setTimeout(skipIntro, 5000); };
 
 function showRules() {
     myName = document.getElementById('nameInput').value;
@@ -40,15 +35,20 @@ function startTimer() {
     }, 1000);
 }
 
+socket.on('assign_role', (data) => { 
+    myRole = data.role; 
+    document.getElementById('myBadge').innerText = `${data.name} [${myRole}]`;
+});
+
 socket.on('update_all', (data) => {
-    // Tabuleiro e Cores
+    // 1. Atualiza Tabuleiro
     const cells = document.querySelectorAll('.cell');
     data.board.forEach((val, i) => {
         cells[i].innerText = val || '';
         cells[i].style.color = (val === 'X') ? '#00ff88' : '#ef4444';
     });
 
-    // Nomes e Placar
+    // 2. Atualiza Placar e Nomes
     document.getElementById('nameX').innerText = data.players['X'] || '---';
     document.getElementById('nameO').innerText = data.players['O'] || '---';
     document.getElementById('valX').innerText = data.score.X;
@@ -60,24 +60,28 @@ socket.on('update_all', (data) => {
         document.getElementById('result-overlay').style.display = 'flex';
     } else {
         document.getElementById('result-overlay').style.display = 'none';
+        
+        // CORREÇÃO: Sincronização de turno forçada
         myTurn = (data.turn === myRole);
         
-        // Sincronismo de Jogadores
         if (data.ready_count >= 2) {
             document.getElementById('status').innerText = myTurn ? ">> SUA VEZ <<" : `AGUARDANDO: ${data.players[data.turn]}`;
-            // Cronômetro inicia apenas após o primeiro movimento
             if (data.started) startTimer();
-            else document.getElementById('timeLeft').innerText = "15";
+            else {
+                clearInterval(countdown);
+                document.getElementById('timeLeft').innerText = "15";
+            }
         } else {
             document.getElementById('status').innerText = "AGUARDANDO OPONENTE...";
         }
     }
 });
 
-function move(idx) { if (myTurn) socket.emit('make_move', { index: idx, role: myRole, room: currentRoom }); }
+function move(idx) { 
+    if (myTurn && myRole !== 'Espectador') {
+        socket.emit('make_move', { index: idx, role: myRole, room: currentRoom }); 
+    }
+}
+
 function handleChoice(a) { socket.emit(a === 'keep' ? 'reset_game' : 'quit_game', { room: currentRoom }); }
 socket.on('force_quit_all', () => { window.location.reload(); });
-socket.on('assign_role', (data) => { 
-    myRole = data.role; 
-    document.getElementById('myBadge').innerText = `${data.name} [${myRole}]`;
-});
