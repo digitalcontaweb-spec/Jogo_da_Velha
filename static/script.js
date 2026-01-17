@@ -28,8 +28,15 @@ function startTimer() {
     document.getElementById('timeLeft').innerText = timeLeft;
     countdown = setInterval(() => {
         timeLeft--;
-        document.getElementById('timeLeft').innerText = (timeLeft >= 0) ? timeLeft : 0;
-        if (timeLeft <= 0) clearInterval(countdown);
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            document.getElementById('timeLeft').innerText = "0";
+            if (myTurn && myRole !== 'Espectador') {
+                socket.emit('timeout_punishment', { room: currentRoom, role: myRole });
+            }
+        } else {
+            document.getElementById('timeLeft').innerText = timeLeft;
+        }
     }, 1000);
 }
 
@@ -39,20 +46,17 @@ socket.on('assign_role', (data) => {
 });
 
 socket.on('update_all', (data) => {
-    // 1. Atualiza Tabuleiro
     const cells = document.querySelectorAll('.cell');
     data.board.forEach((val, i) => {
         cells[i].innerText = val || '';
         cells[i].style.color = (val === 'X') ? '#00ff88' : '#ef4444';
     });
 
-    // 2. Atualiza Nomes e Placar (Essencial para as imagens image_d59106)
-    document.getElementById('nameX').innerText = data.players['X'] || 'AGUARDANDO...';
-    document.getElementById('nameO').innerText = data.players['O'] || 'AGUARDANDO...';
+    document.getElementById('nameX').innerText = data.players['X'] || '---';
+    document.getElementById('nameO').innerText = data.players['O'] || '---';
     document.getElementById('valX').innerText = data.score.X;
     document.getElementById('valO').innerText = data.score.O;
 
-    // 3. Verifica Vencedor
     if (data.winner) {
         clearInterval(countdown);
         document.getElementById('result-message').innerText = data.winner === 'Velha' ? "EMPATE!" : (data.players[data.winner] + " VENCEU!");
