@@ -2,10 +2,10 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="/static/style.css">
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
-    <title>X-ARENA | PRO</title>
+    <title>ARENA X</title>
 </head>
 <body>
     <div id="intro">
@@ -13,44 +13,45 @@
         <button class="skip-btn" onclick="skipIntro()">PULAR APRESENTAÇÃO</button>
     </div>
 
-    <div id="setup" style="display:none">
-        <h1 class="logo-title">ARENA X</h1>
+    <div id="login-modal" class="modal-overlay" style="display:none">
         <div class="modal-box">
+            <h1 class="logo-title">ARENA X</h1>
             <input type="text" id="nameInput" placeholder="SEU NICKNAME">
             <input type="text" id="roomInput" placeholder="CÓDIGO DA SALA">
-            <button class="btn-main" onclick="showRules()">INICIAR DESAFIO</button>
+            <button class="btn-main" onclick="showRules()">ENTRAR NA ARENA</button>
         </div>
     </div>
 
-    <div id="rules-modal" style="display:none">
+    <div id="rules-modal" class="modal-overlay" style="display:none">
         <div class="modal-box">
-            <h2 style="color:#00ff88; margin-top:0;">📜 REGRAS DA ARENA</h2>
-            <ul style="text-align:left; color:#cbd5e1; font-size:0.9rem; line-height:1.6; padding-left:15px; margin:20px 0;">
-                <li>O tempo de 15s só começa após o 1º movimento.</li>
-                <li>Se o tempo esgotar, sua última jogada é removida.</li>
-                <li>O vencedor do round anterior começa a próxima partida.</li>
+            <h2 style="color:#00ff88; margin-top:0;">📜 REGRAS</h2>
+            <ul style="text-align:left; color:#cbd5e1; font-size:0.9rem; padding-left:20px;">
+                <li>Tempo de 15s inicia após o 1º movimento.</li>
+                <li>O vencedor do round anterior começa o próximo.</li>
             </ul>
             <button class="btn-main" onclick="joinGame()">ESTOU PRONTO!</button>
         </div>
     </div>
 
-    <div id="game" style="display:none; flex-direction:column; align-items:center;">
-        <div id="myBadge" style="background:#00ff88; color:#000; padding:5px 15px; border-radius:20px; font-weight:bold; margin-bottom:10px;">---</div>
+    <div id="game">
+        <div id="myBadge" class="badge">---</div>
         <div class="scoreboard">
             <div class="side"><span id="nameX">---</span><div id="valX">0</div></div>
             <div style="color:#475569; font-weight:bold;">VS</div>
             <div class="side"><span id="nameO">---</span><div id="valO">0</div></div>
         </div>
-        <div class="timer">TEMPO: <span id="timeLeft">15</span>s</div>
-        <p id="status" style="color:#00ff88; font-weight:bold; height:20px;"></p>
+        <div class="timer-text">TEMPO: <span id="timeLeft">15</span>s</div>
+        <div id="status" class="status-bar">AGUARDANDO...</div>
+        
         <div class="grid">
             <div class="cell" onclick="move(0)"></div><div class="cell" onclick="move(1)"></div><div class="cell" onclick="move(2)"></div>
             <div class="cell" onclick="move(3)"></div><div class="cell" onclick="move(4)"></div><div class="cell" onclick="move(5)"></div>
             <div class="cell" onclick="move(6)"></div><div class="cell" onclick="move(7)"></div><div class="cell" onclick="move(8)"></div>
+            
             <div id="result-overlay" style="display:none">
-                <h2 id="result-message" style="color:#00ff88"></h2>
-                <button class="btn-rev" onclick="handleChoice('keep')">Revanche</button>
-                <button class="btn-out" onclick="handleChoice('exit')">Sair do jogo</button>
+                <h2 id="result-message" style="color:#00ff88; margin-bottom:15px;"></h2>
+                <button class="btn-choice" style="background:#00ff88;" onclick="handleChoice('keep')">REVANCHE</button>
+                <button class="btn-choice" style="background:#ef4444; color:#fff;" onclick="handleChoice('exit')">SAIR</button>
             </div>
         </div>
     </div>
