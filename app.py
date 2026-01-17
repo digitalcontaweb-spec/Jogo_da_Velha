@@ -1,6 +1,6 @@
 import eventlet
 eventlet.monkey_patch()
-from flask import Flask, render_template, request
+from flask import Flask, render_template
 from flask_socketio import SocketIO, emit, join_room
 
 app = Flask(__name__)
@@ -29,8 +29,6 @@ def handle_join(data):
             'score': {'X': 0, 'O': 0}, 'winner': None, 'started': False
         }
     g = rooms[room]
-    
-    # Atribuição baseada em quem chegar primeiro na sala
     if 'X' not in g['players']: g['players']['X'] = name
     elif 'O' not in g['players'] and g['players']['X'] != name: g['players']['O'] = name
     
@@ -51,6 +49,21 @@ def handle_move(data):
             if res != 'Velha': g['score'][res] += 1
         else:
             g['turn'] = 'O' if role == 'X' else 'X'
+        emit('update_all', g, room=room)
+
+@socketio.on('timeout_punishment')
+def handle_timeout(data):
+    room, role = data['room'], data['role']
+    g = rooms.get(room)
+    if g and g['turn'] == role and not g['winner']:
+        # PUNIÇÃO: Remove a última peça colocada por este jogador
+        last_move = None
+        for i, val in enumerate(g['board']):
+            if val == role: last_move = i
+        if last_move is not None:
+            g['board'][last_move] = None
+        
+        g['turn'] = 'O' if role == 'X' else 'X'
         emit('update_all', g, room=room)
 
 @socketio.on('reset_game')
